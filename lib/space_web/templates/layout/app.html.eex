@@ -80,7 +80,7 @@
         </div>
       </div>
       <div class="flex fixed pin-b pin-x" id="chatbox">
-        <input class="flex-1" v-model="input" v-on:keyup.enter="submit" placeholder="Say something, anything!"></input>
+        <input class="flex-1" v-model="input" v-on:keyup.enter="submit" :placeholder="'Logged in as ' + username + '. Say hi, or change your username with /username xyz!'"></input>
       </div>
     </div>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>

@@ -16,6 +16,10 @@ channel
     console.log("Unable to join", resp);
   });
 
+const placeholderUn = Math.random()
+  .toString(36)
+  .substring(7);
+
 var data = {
   position: { x: "0", y: "0" },
   messages: [],
@@ -28,6 +32,7 @@ var data = {
     }
   },
   users: {},
+  username: placeholderUn,
   input: "",
   crumbs: {
     room_count: 0,
@@ -38,21 +43,26 @@ var data = {
 var submit = function(event) {
   var text = event.target.value;
 
-  if (0 < text.length && text.length < 999) {
-    const position = {
-      x: vm.position.x.toString(),
-      y: vm.position.y.toString()
-    };
+  if (text.startsWith("/username ")) {
+    var username = text.replace("/username ", "").trim();
+    vm.username = username;
+  } else {
+    if (0 < text.length && text.length < 999) {
+      const position = {
+        x: vm.position.x.toString(),
+        y: vm.position.y.toString()
+      };
 
-    channel.push("new_msg", {
-      body: JSON.stringify({
-        position,
-        posted: new Date(),
-        id: vm.messages.length + 1,
-        user: { name: "signalnerve" },
-        text: text
-      })
-    });
+      channel.push("new_msg", {
+        body: JSON.stringify({
+          position,
+          posted: new Date(),
+          id: vm.messages.length + 1,
+          user: { name: vm.username },
+          text: text
+        })
+      });
+    }
   }
 
   vm.input = "";
