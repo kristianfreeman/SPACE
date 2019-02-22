@@ -20,10 +20,25 @@ const placeholderUn = Math.random()
   .toString(36)
   .substring(7);
 
+const randomNearby = () => {
+  const items = ["none", "small", "medium", "big"];
+  const array = [];
+  for (var i = 0; i < 9; i++) {
+    const item = items[Math.floor(Math.random() * items.length)];
+    if (i == 4) {
+      array.push("current");
+    } else {
+      array.push(item);
+    }
+  }
+  return array;
+};
+
 var data = {
   position: { x: "0", y: "0" },
   messages: [],
   currentRoom: "0,0",
+  nearbyRooms: randomNearby(),
   rooms: {
     "0,0": {
       title: "space help desk",
@@ -73,6 +88,7 @@ function move(x, y) {
   vm.position.y = `${parseInt(vm.position.y) + y}`;
   vm.currentRoom = [vm.position.x, vm.position.y].join(",");
   vm.messages = [];
+  vm.nearbyRooms = randomNearby();
 }
 
 var vm = new Vue({

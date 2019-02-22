@@ -1,4 +1,6 @@
 defmodule Space.Application do
+  import Supervisor.Spec
+
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -9,9 +11,10 @@ defmodule Space.Application do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      SpaceWeb.Endpoint
+      SpaceWeb.Endpoint,
       # Starts a worker by calling: Space.Worker.start_link(arg)
       # {Space.Worker, arg},
+      worker(Cachex, [:space, []]),
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

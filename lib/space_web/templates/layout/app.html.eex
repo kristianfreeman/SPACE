@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/utilities.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.6/dist/vue.js"></script>
     <style>
 			.message {
@@ -44,23 +44,37 @@
 			    to   { opacity: 1; }
 			}
     </style>
+    <link rel="stylesheet" type="text/css" href="<%= Routes.static_path(@conn, "/css/app.css") %>"></link>
   </head>
-  <body class="bg-grey-lighter font-mono">
-    <div id="app">
+  <body class="bg-black font-mono text-white">
+    <div id="app" class="p-2">
       <div id="header">
         <div class="flex">
           <span class="flex-1">
             THIS IS SPACE
           </span>
           <div class="text-center mr-4">
-            <div class="text-grey-darker pb-2">
+            <div class="flex flex-col">
+              <div>
+                <button class="text-white" v-on:click="move(0, 1)">↑ </button>
+              </div>
+              <div class="flex flex-row">
+                <button class="text-white" v-on:click="move(-1, 0)">←</button>
+                <div class="m-2 border border-white minimap">
+                  <div class="box" v-for="nearbyRoom in nearbyRooms">
+                    <span :class="nearbyRoom"></span>
+                  </div>
+                </div>
+                <button class="text-white" v-on:click="move(1, 0)">→</button>
+              </div>
+              <div>
+                <button class="text-white" v-on:click="move(0, -1)">↓</button>
+              </div>
+            </div>
+            <div class="text-grey-lighter py-2">
               {{currentRoom}}
             </div>
             <div>
-              <button v-on:click="move(-1, 0)">Left</button>
-              <button v-on:click="move(0, 1)">Up</button>
-              <button v-on:click="move(1, 0)">Right</button>
-              <button v-on:click="move(0, -1)">Down</button>
             </div>
           </div>
         </div>
