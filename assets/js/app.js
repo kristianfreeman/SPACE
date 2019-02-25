@@ -41,7 +41,7 @@ const establishConnection = (x = 0, y = 0) => {
 
   // Log messages from the server
   channel.on("new_msg", payload => {
-    var message = payload.body;
+    const message = payload.body;
     console.log(message);
     if (
       vm.position.x != message.position.x ||
@@ -50,12 +50,12 @@ const establishConnection = (x = 0, y = 0) => {
       return;
     }
 
-    var messages = [].concat(vm.messages, message);
+    const messages = [].concat(vm.messages, message);
     vm.messages = messages;
 
     setTimeout(function() {
-      var current = document.documentElement.scrollTop;
-      var height = document.body.scrollHeight;
+      const current = document.documentElement.scrollTop;
+      const height = document.body.scrollHeight;
 
       if (current / height < 0.9) {
         window.scrollTo(0, height + 100);
@@ -76,7 +76,7 @@ const randomStr = () =>
 const randomNearby = () => {
   const items = ["none", "small", "medium", "big"];
   const array = [];
-  for (var i = 0; i < 9; i++) {
+  for (let i = 0; i < 9; i++) {
     const item = items[Math.floor(Math.random() * items.length)];
     if (i == 4) {
       array.push("current");
@@ -87,7 +87,9 @@ const randomNearby = () => {
   return array;
 };
 
-var data = {
+const existingUsername = localStorage.getItem("username");
+
+const data = {
   position: { x: "0", y: "0" },
   messages: [],
   currentRoom: "0,0",
@@ -100,7 +102,7 @@ var data = {
     }
   },
   users: {},
-  username: randomStr(),
+  username: existingUsername || randomStr(),
   input: null,
   crumbs: {
     room_count: 0,
@@ -108,15 +110,34 @@ var data = {
   }
 };
 
-var submit = function(event) {
-  var text = event.target.value;
+const submit = function(event) {
+  const text = event.target.value;
 
   if (text.startsWith("/username ")) {
-    var username = text.replace("/username ", "").trim();
+    const username = text.replace("/username ", "").trim();
+    localStorage.setItem("username", username);
     vm.username = username;
   } else if (text.startsWith("/claim")) {
     channel.push("claim_room", {
       body: {
+        user: { name: vm.username }
+      }
+    });
+  } else if (text.startsWith("/title ")) {
+    const title = text.replace("/title ", "").trim();
+
+    channel.push("set_room_title", {
+      body: {
+        title,
+        user: { name: vm.username }
+      }
+    });
+  } else if (text.startsWith("/description ")) {
+    const description = text.replace("/description ", "").trim();
+
+    channel.push("set_room_description", {
+      body: {
+        description,
         user: { name: vm.username }
       }
     });
@@ -156,7 +177,7 @@ function move(x, y) {
   vm.messages = [];
 }
 
-var vm = new Vue({
+const vm = new Vue({
   el: "#app",
   data: data,
   methods: {

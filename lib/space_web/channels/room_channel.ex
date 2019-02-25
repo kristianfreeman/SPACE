@@ -18,7 +18,7 @@ defmodule SpaceWeb.RoomChannel do
   def handle_in("claim_room", %{"body" => body}, socket) do
     [topic, position] = String.split(socket.topic, ":")
     [x, y] = String.split(position, ",")
-    {:ok, cached} = Cachex.get(:space, "room:#{x},#{y}")
+    {:ok, cached} = Cachex.get(:space, "room_claim:#{x},#{y}")
     {:ok, user} = Map.fetch(body, "user")
 
     case {x, y, cached} do
@@ -27,11 +27,52 @@ defmodule SpaceWeb.RoomChannel do
       {_, _, nil} ->
         IO.puts("Can claim")
         new_body = %{ claimed: true, user: user }
+        Cachex.put!(:space, "room_claim:#{x},#{y}", %{ user: user })
         Cachex.put!(:space, "room:#{x},#{y}", new_body)
         push(socket, "data_room", %{position: %{ x: x, y: y }, room: new_body})
       _ ->
         IO.puts("Can't claim")
     end
+    {:noreply, socket}
+  end
+
+  def handle_in("set_room_title", %{"body" => body}, socket) do
+    [topic, position] = String.split(socket.topic, ":")
+    [x, y] = String.split(position, ",")
+    {:ok, cached} = Cachex.get(:space, "room:#{x},#{y}")
+
+    {:ok, user} = Map.fetch(body, "user")
+    {:ok, title} = Map.fetch(body, "title")
+
+    case cached[:user]["name"] == user["name"] do
+      true ->
+        new_body = Map.merge(cached, %{title: title})
+        Cachex.put!(:space, "room:#{x},#{y}", new_body)
+        broadcast!(socket, "data_room", %{position: %{ x: x, y: y }, room: new_body})
+      false ->
+        IO.puts("Not the owner of this room")
+    end
+
+    {:noreply, socket}
+  end
+
+  def handle_in("set_room_description", %{"body" => body}, socket) do
+    [topic, position] = String.split(socket.topic, ":")
+    [x, y] = String.split(position, ",")
+    {:ok, cached} = Cachex.get(:space, "room:#{x},#{y}")
+    {:ok, user} = Map.fetch(body, "user")
+
+    {:ok, description} = Map.fetch(body, "description")
+
+    case cached[:user]["name"] == user["name"] do
+      true ->
+        new_body = Map.merge(cached, %{description: description})
+        Cachex.put!(:space, "room:#{x},#{y}", new_body)
+        broadcast!(socket, "data_room", %{position: %{ x: x, y: y }, room: new_body})
+      false ->
+        IO.puts("Not the owner of this room")
+    end
+
     {:noreply, socket}
   end
 
